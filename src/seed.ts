@@ -18,7 +18,7 @@ const stories = [
     author: 'Hemanth',
     rating: 4.8,
     plays: 1200000,
-    image: '/images/story1.png',
+    image: '/images/kaki-kunda.png',
     category: 'moral',
     subcategory: 'animal',
 
@@ -26,94 +26,23 @@ const stories = [
       'the moral stories for children are a collection of short stories that teach valuable life lessons and ethical values. These stories often feature animals as characters and convey important messages about honesty, kindness, friendship, and other virtues.',
 
     episodes: [
+
       {
         id: 'ep1',
-        title: 'ఏనుగు-కుందేళ్ళ కథ',
-        duration: '0:58',
+        title: 'సింహం-ఎలుక కథ',
+        duration: '0:46',
           audioUrl:
-            '/audio/Stories/Moral Stories/ఏనుగు – కుందేళ్లు.wav',
+            '/audio/Stories/Moral Stories/సింహం – ఎలుక.wav',
         locked: false,
       },
 
       {
         id: 'ep2',
-        title: 'ఏనుగు-చీమ కథ',
-        duration: '0:47',
+        title: 'కాకి-కుండ కథ',
+        duration: '0:38',
           audioUrl:
-            '/audio/Stories/Moral Stories/ఏనుగు – చీమలు.wav',
+            '/audio/Stories/Moral Stories/కాకి-కుండ.wav',
         locked: false,
-      },
-
-      {
-        id: 'ep3',
-        title: 'కాకి-నక్క కథ',
-        duration: '0:43',
-          audioUrl:
-            '/audio/Stories/Moral Stories/కాకి – నక్క.wav',
-        locked: false,
-      },
-
-      {
-        id: 'ep4',
-        title: 'కుక్క-ప్రతిబింబం కథ',
-        duration: '0:42',
-          audioUrl:
-            '/audio/Stories/Moral Stories/కుక్క – ప్రతిబింబం.wav',
-        locked: true,
-      },
-
-      {
-        id: 'ep5',
-        title: 'కోతి-మొసలి కథ',
-        duration: '0:57',
-          audioUrl:
-            '/audio/Stories/Moral Stories/కోతి – మొసలి.wav',
-        locked: true,
-      },
-
-      {
-        id: 'ep6',
-        title: 'తాబేలు-రెండు హంసలు కథ',
-        duration: '1:01',
-          audioUrl:
-            '/audio/Stories/Moral Stories/తాబేలు – రెండు హంసలు.wav',
-        locked: true,
-      },
-
-      {
-        id: 'ep7',
-        title: 'మేక-నక్క కథ',
-        duration: '0:49',
-          audioUrl:
-            '/audio/Stories/Moral Stories/మేక – నక్క.wav',
-        locked: true,
-      },
-
-      {
-        id: 'ep8',
-        title: 'రెండు పక్షులు-వేటగాడు కథ',
-        duration: '0:53',
-          audioUrl:
-            '/audio/Stories/Moral Stories/రెండు పక్షులు – వేటగాడు.wav',
-        locked: true,
-      },
-
-      {
-        id: 'ep9',
-        title: 'సింహం-ఎలుక కథ',
-        duration: '0:53',
-          audioUrl:
-            '/audio/Stories/Moral Stories/సింహం – ఎలుక.wav',
-        locked: true,
-      },
-
-      {
-        id: 'ep10',
-        title: 'కాకి-పాము కథ',
-        duration: '0:53',
-          audioUrl:
-            '/audio/Stories/Moral Stories/కాకి – పాము.wav',
-        locked: true,
       },
     ],
   },
@@ -125,11 +54,9 @@ const seedDatabase = async () => {
 
     console.log('MongoDB Connected')
 
-    // Remove existing stories
-    await Story.deleteMany({})
-
-    // Insert frontend stories
-    await Story.insertMany(stories)
+    for (const story of stories) {
+      await Story.updateOne({ id: story.id }, { $set: story }, { upsert: true })
+    }
 
     console.log('Stories inserted successfully')
 
