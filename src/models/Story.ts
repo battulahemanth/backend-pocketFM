@@ -12,16 +12,17 @@ export interface IStory extends Document {
   id: string;
   title: string;
   author: string;
-  rating: number;
-  plays: number;
-  image: string;
-  category: string;
-  subcategory: string;
   description: string;
   episodes: Episode[];
+  image: string;
+  rating: number;
+  plays: number;
+  category: string;
+  subcategory: string;
+  updatedAt: Date;
 }
 
-const EpisodeSchema = new Schema(
+const episodeSchema = new Schema<Episode>(
   {
     id: {
       type: String,
@@ -35,12 +36,12 @@ const EpisodeSchema = new Schema(
 
     duration: {
       type: String,
-      default: "10:00",
+      required: true,
     },
 
     audioUrl: {
       type: String,
-      default: "",
+      required: true,
     },
 
     locked: {
@@ -48,15 +49,16 @@ const EpisodeSchema = new Schema(
       default: false,
     },
   },
-  { _id: false }
+  {
+    _id: false,
+  }
 );
 
-const StorySchema = new Schema(
+const storySchema = new Schema<IStory>(
   {
     id: {
       type: String,
       required: true,
-      unique: true,
     },
 
     title: {
@@ -69,14 +71,14 @@ const StorySchema = new Schema(
       required: true,
     },
 
-    rating: {
-      type: Number,
-      default: 4.5,
+    description: {
+      type: String,
+      default: "",
     },
 
-    plays: {
-      type: Number,
-      default: 0,
+    episodes: {
+      type: [episodeSchema],
+      default: [],
     },
 
     image: {
@@ -84,29 +86,32 @@ const StorySchema = new Schema(
       default: "",
     },
 
+    rating: {
+      type: Number,
+      default: 0,
+    },
+
+    plays: {
+      type: Number,
+      default: 0,
+    },
+
     category: {
-      type: String,
-      default: "Fantasy",
-    },
-
-    subcategory: {
-      type: String,
-      default: "Adventure",
-    },
-
-    description: {
       type: String,
       default: "",
     },
 
-    episodes: {
-      type: [EpisodeSchema],
-      default: [],
+    subcategory: {
+      type: String,
+      default: "",
     },
   },
+
   {
     timestamps: true,
   }
 );
 
-export default mongoose.model<IStory>("Story", StorySchema);
+const Story = mongoose.model<IStory>("Story", storySchema);
+
+export default Story;
