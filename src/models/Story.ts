@@ -19,6 +19,7 @@ export interface IStory extends Document {
   plays: number;
   category: string;
   subcategory: string;
+  createdAt: Date;
   updatedAt: Date;
 }
 
@@ -106,7 +107,6 @@ const storySchema = new Schema<IStory>(
       default: "",
     },
   },
-
   {
     timestamps: true,
   }
