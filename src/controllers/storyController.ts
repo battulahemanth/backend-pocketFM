@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import Story from '../models/Story'
+import Story, { type IStory } from '../models/Story'
 
 // GET /api/stories
 export const getStories = async (
@@ -92,9 +92,29 @@ export const updateStory = async (
   res: Response
 ): Promise<void> => {
   try {
+    const fields = [
+      'title',
+      'author',
+      'description',
+      'episodes',
+      'image',
+      'rating',
+      'plays',
+      'category',
+      'subcategory',
+    ] as const satisfies readonly (keyof IStory)[]
+
+    const updates = Object.fromEntries(
+      fields
+        .filter((field) =>
+          Object.prototype.hasOwnProperty.call(req.body, field)
+        )
+        .map((field) => [field, req.body[field]])
+    )
+
     const story = await Story.findOneAndUpdate(
       { id: req.params.id },
-      req.body,
+      { $set: updates },
       {
         new: true,
         runValidators: true,
@@ -117,7 +137,6 @@ export const updateStory = async (
 
     res.status(500).json({
       message: 'Failed to update story',
-      error,
     })
   }
 }

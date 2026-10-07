@@ -1,15 +1,9 @@
-import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 
+import connectDB, { disconnectFromMongoDB } from './config/db'
 import Story from './models/Story'
 
 dotenv.config()
-
-const MONGO_URI = process.env.MONGO_URI
-
-if (!MONGO_URI) {
-  throw new Error('MONGO_URI is not defined')
-}
 
 const stories = [
   {
@@ -50,9 +44,7 @@ const stories = [
 
 const seedDatabase = async () => {
   try {
-    await mongoose.connect(MONGO_URI)
-
-    console.log('MongoDB Connected')
+    await connectDB()
 
     for (const story of stories) {
       await Story.updateOne({ id: story.id }, { $set: story }, { upsert: true })
@@ -60,15 +52,19 @@ const seedDatabase = async () => {
 
     console.log('Stories inserted successfully')
 
-    await mongoose.disconnect()
+    await disconnectFromMongoDB()
 
     console.log('MongoDB connection closed')
   } catch (error) {
     console.error('Seed error:', error)
 
-    await mongoose.disconnect()
+    try {
+      await disconnectFromMongoDB()
+    } catch (disconnectError) {
+      console.error('Error closing MongoDB connection:', disconnectError)
+    }
 
-    process.exit(1)
+    process.exitCode = 1
   }
 }
 

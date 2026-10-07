@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import connectDB from "./config/db";
-import storyRoutes from "./routes/storyRoutes";
+import connectDB, { disconnectFromMongoDB } from "./config/db";
+import storiesRouter from "./routes/stories";
 
 dotenv.config();
 
@@ -25,20 +25,41 @@ app.use(
   })
 );
 
-// MongoDB
-connectDB();
-
 // Story routes
-app.use("/api/stories", storyRoutes);
+app.use("/api/stories", storiesRouter);
 
 // Test route
 app.get("/", (_req, res) => {
   res.json({
-    message: "PocketFM Backend is running",
+    message: "OurStories Backend is running",
   });
 });
 
-// Start server
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+const startServer = async (): Promise<void> => {
+  await connectDB();
+
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+
+  const shutdown = async (): Promise<void> => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
+      await disconnectFromMongoDB();
+      console.log("MongoDB connection closed");
+    } catch (error) {
+      console.error("Error during server shutdown:", error);
+      process.exitCode = 1;
+    }
+  };
+
+  process.once("SIGINT", () => void shutdown());
+  process.once("SIGTERM", () => void shutdown());
+};
+
+void startServer().catch((error: unknown) => {
+  console.error("Failed to start server:", error);
+  process.exitCode = 1;
 });
