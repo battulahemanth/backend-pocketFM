@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { isIP } from "node:net";
 
 const connectDB = async (): Promise<void> => {
   const mongoURI = process.env.MONGO_URI;
@@ -10,6 +11,27 @@ const connectDB = async (): Promise<void> => {
   if (/[<>]/.test(mongoURI)) {
     throw new Error(
       "MONGO_URI contains placeholder values. Replace them with your Atlas connection details."
+    );
+  }
+
+  let mongoHost: string;
+  try {
+    mongoHost = new URL(mongoURI).hostname
+      .toLowerCase()
+      .replace(/^\[|\]$/g, "");
+  } catch {
+    throw new Error("MONGO_URI is not a valid MongoDB connection URI.");
+  }
+
+  const isLoopbackAddress =
+    mongoHost === "localhost" ||
+    mongoHost.endsWith(".localhost") ||
+    (isIP(mongoHost) === 4 && Number(mongoHost.split(".")[0]) === 127) ||
+    mongoHost === "::1";
+
+  if (isLoopbackAddress) {
+    throw new Error(
+      "MONGO_URI points to a local MongoDB server. Set the Railway service variable to your MongoDB Atlas connection URI."
     );
   }
 
