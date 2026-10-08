@@ -35,6 +35,13 @@ app.get("/", (_req, res) => {
   });
 });
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "Backend is running",
+  });
+});
+
 const startServer = async (): Promise<void> => {
   await connectDB();
 
